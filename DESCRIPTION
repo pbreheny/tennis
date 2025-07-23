@@ -1,0 +1,18 @@
+Package: tennis
+Title: What the Package Does Using Title Case
+Version: 0.0.0
+Date: 2025-07-22
+Authors@R: person("Patrick", "Breheny", role=c("aut","cre"), email="patrick-breheny@uiowa.edu", comment=c(ORCID="000-0002-0650-1119"))
+Description: More details about what the package does.
+BugReports: http://github.com/pbreheny/tennis/issues
+Depends:
+  data.table,
+  glue,
+  runjags,
+  stringr,
+  tidybayes
+License: GPL-3
+LazyData: TRUE
+VignetteBuilder: knitr
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)

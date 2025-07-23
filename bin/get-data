@@ -1,0 +1,3 @@
+#!/bin/bash
+wget http://www.tennis-data.co.uk/$1/$1.xlsx -O data/atp/$1.xlsx
+wget http://www.tennis-data.co.uk/$1w/$1.xlsx -O data/wta/$1.xlsx

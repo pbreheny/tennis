@@ -1,4 +1,4 @@
-makePrior <- function(ID, side, year) {
+make_prior <- function(id, side, year) {
   f <- paste0("psm/", side, "/", min(year)-1, ".RData")
   if (file.exists(f)) {
     load(f)
@@ -8,7 +8,7 @@ makePrior <- function(ID, side, year) {
     rss <- rep(10, 3)
     tdf <- rep(1, 3)
   }
-  ind <- match(ID, rownames(Eta))
+  ind <- match(id, rownames(Eta))
   new <- is.na(ind)
   muEta <- Eta[ind, ncol(Eta)]
   tauEta <- sdEta[ind, ncol(Eta)]^(-2)

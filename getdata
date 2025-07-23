@@ -1,7 +1,0 @@
-#!/bin/bash
-wget http://www.tennis-data.co.uk/$1/$1.zip -O ./$1.zip
-unzip $1.zip -d data/atp/
-rm $1.zip
-wget http://www.tennis-data.co.uk/$1w/$1.zip -O ./$1.zip
-unzip $1.zip -d data/wta/
-rm $1.zip
