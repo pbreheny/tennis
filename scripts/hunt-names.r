@@ -1,8 +1,8 @@
 side <- "wta"
 year <- 2012
-Data <- import(year, side)
+dat <- import(year, side)
 prior <- makePrior(Data$PlayerID, side, year)
-Data$PlayerID[prior$new==1]
+dat$PlayerID[prior$new==1]
 
 last <- sapply(Data$PlayerID[prior$new==1], function(x) strsplit(x, " ")[[1]][1])
 for (i in 1:length(last)) {

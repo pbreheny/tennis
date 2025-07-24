@@ -77,10 +77,11 @@ alpha <- gather_draws(jags_fit, alpha[i,j]) |>
   _[, Surface := SurfaceID[j]]
 
 # tau: 
-tau <- gather_draws(jags_fit, tau)
-m <- apply(tau, 2, mean)
-v <- apply(tau, 2, var)
-rss <- 2*m/v
-tdf <- rss*m
+tau <- gather_draws(jags_fit, tau[i]) |>
+  as.data.table() |>
+  _[, .(mean = mean(.value), sd = sd(.value)), i] |>
+  _[, Surface := SurfaceID[i]] |>
+  _[, rss := 2 * mean / sd^2] |>
+  _[, tdf := rss * mean]
 
 save(Eta, Alpha, Delta, sdEta, sdAlpha, rss, tdf, file=paste0("psm/", side, "/", year, ".RData"))

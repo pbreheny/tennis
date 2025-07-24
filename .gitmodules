@@ -1,0 +1,6 @@
+[submodule "data/atp"]
+	path = data/atp
+	url = git@github.com:JeffSackmann/tennis_atp.git
+[submodule "data/wta"]
+	path = data/wta
+	url = git@github.com:JeffSackmann/tennis_wta.git
