@@ -1,23 +1,23 @@
 model {
   # Likelihood
-  for (i in 1:nm) {
-    y[i] ~ dbin(p[i], ns[i])
-    logit(p[i]) <- eta[Winner[i], Time[i]] + alpha[Winner[i], Surface[i]] -
-                   eta[Loser[i], Time[i]]  - alpha[Loser[i], Surface[i]]
+  for (i in 1:n) {
+    winner_sets[i] ~ dbin(p[i], n_sets[i])
+    logit(p[i]) <- eta[winner_id[i], time[i]] + alpha[winner_id[i], surface[i]] -
+                   eta[loser_id[i], time[i]]  - alpha[winner_id[i], surface[i]]
   }
 
   # Prior on eta and alpha
-  for (j in 1:np) {
-    mEta[j] <- ifelse(new[j], 0, muEta[j])
-    tEta[j] <- ifelse(new[j], tau[1], tauEta[j])
-    eta[j,1] ~ dnorm(mEta[j], tEta[j])
-    for (t in 2:T) {
-      eta[j,t] ~ dnorm(eta[j,t-1], tau[2])
+  for (j in 1:n_player) {
+    eta_center[j] <- ifelse(new[j], 0, mu_eta[j])
+    eta_spread[j] <- ifelse(new[j], tau[1], tau_eta[j])
+    eta[j,1] ~ dnorm(eta_center[j], eta_spread[j])
+    for (t in 2:n_time) {
+      eta[j, t] ~ dnorm(eta[j, t - 1], tau[2])
     }
-    for (k in 1:3) {
-      mAlpha[j,k] <- ifelse(new[j], 0, muAlpha[j,k])
-      tAlpha[j,k] <- ifelse(new[j], tau[3], tauAlpha[j,k])
-      alpha[j,k] ~ dnorm(mAlpha[j,k], tAlpha[j,k])
+    for (k in 1:n_surface) {
+      alpha_center[j, k] <- ifelse(new[j], 0, mu_alpha[j, k])
+      alpha_spread[j, k] <- ifelse(new[j], tau[3], tau_alpha[j, k])
+      alpha[j, k] ~ dnorm(alpha_center[j,k], alpha_spread[j, k])
     }
   }
 

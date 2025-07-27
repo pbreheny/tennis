@@ -1,21 +1,24 @@
 make_prior <- function(id, side, year) {
-  f <- paste0("psm/", side, "/", min(year)-1, ".RData")
-  if (file.exists(f)) {
-    load(f)
+  last_year <- glue('posterior/{side}/{min(year)-1}.rds')
+  if (file.exists(last_year)) {
+    posterior <- readRDS(last_year)
   } else {
-    Eta <- sdEta <- matrix(NA, ncol=3)
-    Alpha <- sdAlpha <- matrix(NA, ncol=3)
+    eta <- matrix(NA, ncol = 3)
+    sd_eta <- matrix(NA, ncol = 3)
+    alpha <- matrix(NA, ncol = 3)
+    sd_alpha <- matrix(NA, ncol = 3)
     rss <- rep(10, 3)
     tdf <- rep(1, 3)
   }
-  ind <- match(id, rownames(Eta))
+  ind <- match(id, rownames(eta))
   new <- is.na(ind)
-  muEta <- Eta[ind, ncol(Eta)]
-  tauEta <- sdEta[ind, ncol(Eta)]^(-2)
-  muAlpha <- Alpha[ind, ]
-  tauAlpha <- sdAlpha[ind, ]^(-2)
-  muEta[new] <- tauEta[new] <- 0
-  muAlpha[new,] <- tauAlpha[new,] <- 0
+  mu_eta <- eta[ind, ncol(eta)]
+  tau_eta <- sd_eta[ind, ncol(eta)]^(-2)
+  mu_alpha <- alpha[ind, ]
+  tau_alpha <- sd_alpha[ind, ]^(-2)
+  mu_eta[new] <- tau_eta[new] <- 0
+  mu_alpha[new,] <- tau_alpha[new,] <- 0
 
-  list(muEta=muEta, tauEta=tauEta, muAlpha=muAlpha, tauAlpha=tauAlpha, rss=rss, tdf=tdf, new=1*new)
+  list(mu_eta = mu_eta, tau_eta = tau_eta, mu_alpha = mu_alpha, tau_alpha = tau_alpha,
+    rss = rss, tdf = tdf, new = 1 * new)
 }

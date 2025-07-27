@@ -1,39 +1,44 @@
-#' Import data from tennis-data.co.uk
+#' Import data
+#' 
+#' @year Year (numeric)
+#' @side atp/wta (string)
+#' 
+#' @examples
+#' import(2017, "wta")
 
-import_tdcu <- function(year, side = c("atp", "wta")) {
+import <- function(year, side = c("atp", "wta")) {
   dat_list <- vector("list", length(year))
   for (i in 1:length(year)) {
-    xls <- glue("data/{side}/{year[i]}.xls")
-    xlsx <- glue("data/{side}/{year[i]}.xlsx")
-    if (file.exists(xls)) {
-      dat_list[[i]] <- readxl::read_excel(xls, sheet=2, na = c("", "N/A", "NA"))
-    } else if (file.exists(xlsx)) {
-      dat_list[[i]] <- readxl::read_excel(xlsx, na = c("", "N/A", "NA"))
-    }
-    if (class(dat_list[[i]]$Date)[1] == 'character') {
-      dat_list[[i]]$Date <- lubridate::parse_date_time(dat_list[[i]]$Date, orders=c("ymd", "mdy"))
-    }
-    names(dat_list[[i]])[grep("Best", names(dat_list[[i]]))] <- "BestOf"
-    dat_list[[i]] <- dat_list[[i]][, c("Wsets", "Lsets", "Winner", "Loser", "Surface", "Date")]
+    dat_list[[i]] <- fread(glue("data/{side}/{side}_matches_{year}.csv"))
+    sets <- vapply(dat_list[[i]]$score, parse_score, numeric(2))
+    dat_list[[i]][, winner_sets := sets[1,]]
+    dat_list[[i]][, loser_sets := sets[2,]]
   }
   dat <- rbindlist(dat_list) |>
-    _[!is.na(Wsets) & !is.na(Lsets)]
-  dat$Winner <- fix_name(dat$Winner)
-  dat$Loser <- fix_name(dat$Loser)
+    _[score != "W/O"]
+  dat[surface == "Carpet", surface := "Grass"]
 
-  # Prepare to return
-  monthChar <- month(dat$Date)
-  monthChar[nchar(monthChar)==1] <- paste0("0", monthChar[nchar(monthChar)==1])
-  TimeFactor <- as.factor(paste(year(dat$Date), monthChar, sep="-"))
+  dat[, .(
+      winner_sets,
+      loser_sets,
+      winner_name,
+      loser_name,
+      winner_id,
+      loser_id,
+      surface,
+      time = anytime::anydate(dat$tourney_date) |>
+        format.Date("%Y-%m")
+  )]
+}
 
-  list(
-    dat = dat,
-    PlayerID = unique(c(dat$Winner, dat$Loser)),
-    SurfaceID = c("Hard", "Clay", "Grass"),
-    Winner = match(dat$Winner, PlayerID),
-    Loser <- match(dat$Loser, PlayerID),
-    Surface <- match(dat$Surface, SurfaceID),
-    Time <- as.numeric(TimeFactor),
-    TimeID <- levels(TimeFactor)
-  )
+#' Determine number of sets won by each player from score
+parse_score <- function(score) {
+  if (length(score) != 1) stop("score must be a single string", call. = FALSE)
+  split_score <- score |>
+    str_replace(" RET", "") |>
+    str_replace(" DEF", "") |>
+    str_split_1(" ") |> 
+    purrr::map(str_split_1, pattern = "-")
+  vapply(split_score, \(x) c(x[1] > x[2], x[2] > x[1]), numeric(2)) |>
+    rowSums()
 }
