@@ -13,6 +13,7 @@ if (interactive()) {
   side <- opt$side
   year <- as.numeric(eval(parse(text=opt$year)))
 }
+devtools::load_all(quiet = TRUE)
 
 # Import
 dat <- import(year, side)
@@ -67,7 +68,11 @@ alpha <- gather_draws(jags_fit, alpha[i,j]) |>
   _[, player := player_map[i]] |>
   _[, surface := surface_map[j]]
 
-# tau: precision of eta / ar process / surface (tdf and rss control prior on tau)
+# tau: (tdf and rss control prior on tau) precision of
+#   eta
+#   ar process
+#   surface
+#   dispersion
 tau <- gather_draws(jags_fit, tau[i]) |>
   as.data.table() |>
   _[, .(mean = mean(.value), sd = sd(.value)), i] |>
